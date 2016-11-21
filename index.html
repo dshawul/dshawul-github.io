@@ -400,25 +400,114 @@ This is the parent `<div>` that contains the menu and the content area.
 
     </ul>
 
-      <h2 id="life">Life</h2>
-	  
-      <h3 id="photo">Photography</h3>
-      <p> I try to take pictures of the beautiful city <em>Monterey</em> whenever I get the chance. </p>
-		  
-      <h3 id="chess">Computer Chess</h3>
-      <p> I spent so much time developing <em>computer chess</em> programs. 
-		  Here is the <a href="https://sites.google.com/site/dshawul/home">dark side</a> of me!</p>
-		  
-	  <h2 id="codes">Codes</h2>
+      <h2 id="codes">Codes</h2>
 	  <ul class="fa-ul">
 	  <li>
 		  <a href="http://github.com/dshawul/solver"><i class="fa-li fa fa-file-text-o"></i></a>
-		  Solver - A finite volume and discontinuous Galerkin solver for fluid flow simulations.
+		  Solver - A finite volume and discontinuous Galerkin solver for fluid flow simulations and more.
 	  </li>
+      
+      <p>
+         Solver, despite its boring name, is quite an intricate program that allows one to solve different types
+         of partial differential equations (PDEs) using the finite-volume method (FVM) and its high-order counterpart the
+         discontiniuous Galerking method (DG-FEM). It is written in high-level object-oriented C++ that allows one to solve
+         PDEs with a few lines of code (e.g. 10 lines for solving the scalar transport equation). Behind the scences, the code 
+         is parallelized using MPI, with proper overlapping of computationa and computation, to run on a cluster of computers.
+         This hides the nitty-gritty details of HPC programming from the programer. 
+      </p>
+      
+<!-- HTML generated using hilite.me --><div style="background: #f8f8f8; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #00BB00; font-weight: bold">void</span> <span style="color: #00A000">transport</span>(istream<span style="color: #666666">&amp;</span> input) {
+    <span style="color: #AA22FF; font-weight: bold">for</span> (AmrIteration ait; <span style="color: #666666">!</span>ait.end(); ait.next()) {     <span style="color: #008800; font-style: italic">/*AMR iteration object (ait) and loop*/</span>
+        VectorCellField U(<span style="color: #BB4444">&quot;U&quot;</span>, READWRITE);               <span style="color: #008800; font-style: italic">/*Velocity field defined over the grid*/</span>
+         ScalarCellField T(<span style="color: #BB4444">&quot;T&quot;</span>, READWRITE);               <span style="color: #008800; font-style: italic">/*Scalar field*/</span>
+         ScalarFacetField F <span style="color: #666666">=</span> flx(U);                     <span style="color: #008800; font-style: italic">/*Compute flux field*/</span>
+         ScalarCellField mu <span style="color: #666666">=</span> <span style="color: #666666">1</span>;                          <span style="color: #008800; font-style: italic">/*Diffusion parameter*/</span>
+         <span style="color: #AA22FF; font-weight: bold">for</span> (it(ait.get_step()); <span style="color: #666666">!</span>it.end(); it.next()) { <span style="color: #008800; font-style: italic">/*Time loop with support for deferred correction */</span>
+             ScalarCellMatrix M;                          <span style="color: #008800; font-style: italic">/*Matrix for the PDE discretization*/</span>
+             M <span style="color: #666666">=</span> div(T,U,F,<span style="color: #666666">&amp;</span>mu) <span style="color: #666666">-</span> lap(T,mu);              <span style="color: #008800; font-style: italic">/*Divergence &amp; Laplacian terms*/</span>
+             addTemporal<span style="color: #666666">&lt;1&gt;</span>(M);                           <span style="color: #008800; font-style: italic">/*Add temporal derivative*/</span>
+             Solve(M);                                    <span style="color: #008800; font-style: italic">/*Solve*/</span>
+         }
+    }
+}
+</pre></div>
+
+      <p>     
+         Solver uses self-written Adaptive Mesh Refinement (AMR) library for polyhedral cells that is applied to a solver code 
+         using one outer loop. See the code below for solving the scalar transport equation to see how AMR is applied using 
+         one line. There is no other library that I know of with support for AMR on polyhedral cells.
+         
+         To learn and use the Solver library quickly, it is best to start from Doxygen documentation provided in the github 
+         repository. <a href="http://github.com/dshawul/solver">[github]</a>
+      </p>
+      <p></p>
+      
 	  <li>
 		  <a href="http://github.com/dshawul/StAnD"><i class="fa-li fa fa-file-text-o"></i></a>
 		  StAnD - A linear static/dynamic structural analysis and design program.
 	  </li>
+      <p>
+      StAnD, better named than Solver, is a program for linear structural analysis (static/dynamic) and design of beams, plane 
+      and space truss/frames, shells etc. It can also design reinforced concrete / steel beams and columns using different
+      national codes including the Ethiopian building codes and standards.
+      </p>
+      <p>
+      This is a very old project of mine I started during final year project of my BsC (circa 2003) at Addis Ababa University,
+      Ethiopia. The code uses Microsoft Foundation Classes (MFC) to create a GUI that looks like the widely used SAP program. I
+      was extremely inspired by SAP at the time, and also didn't want to do the structural analysis and design by hand which was
+      required for the final year project.
+      
+      To learn and use the StAnD library quickly, it is best to start from Doxygen documentation provided in the github 
+      repository. <a href="http://github.com/dshawul/stand">[github]</a>
+      </p>
+      
+	  <li>
+		  <a href="http://frankgiraldo.wixsite.com/mysite/numa"><i class="fa-li fa fa-file-text-o"></i></a>
+		  NUMA - The Nonhydrostatic Unified Model of the Atmosphere.
+	  </li>
+      <p>
+      I have contributed to the non-hydrostatic unified model of the atmosphere, smartly named as NUMA by my supervisor 
+      Francis X. Giraldo. NUMA is a compressible Navier-Stokes solver specifically designed to solve the equations for
+      applications in nonhydrostatic atmospheric modeling. NUMA solves the equations in a cube as well as on a sphere. NUMA is the
+      dynamical core of the  U.S. Navy's NEPTUNE system.  NEPTUNE stands for the Navy's Environmental Prediction sysTem Using the
+      NUMA corE. NUMA/NEPTUNE participated in a recent NOAA (National Oceanographic and Atmospheric Administration) study
+      conducted to determine which model will be used operationally by the U.S. National Weather Service
+      </p>
+      <p>
+      My contributions to NUMA is mainly in the high-performance computing (HPC) depratment. My main achievements is that I ported
+      NUMA to run on a host of accelerators GPUs, Intel KNL, and even standard CPU cores using a new language called OCCA. 
+      <a href="https://github.com/libocca/occa">[github]</a>. NUMA uses the same kernels to run on both GPUs and CPUs because 
+      the kernels are compiled at run-time for the specific device. This approach also allows for device specific optimizations
+      that would not be possible otherwise. I have tested my GPU implementation using upto 16384 GPUs on the second fastest
+      supercomputer in the world, Titan, and found more than 90% scalability. Moreover, a single K20X GPU card was able to deliver
+      approximately a 200X speedup over a single core CPU.
+  </p>
+  <p>
+      My other contribution was in unifiying several branches of NUMA into once code without loss of performance. This was
+      originally necessary becasue we needed the discontinuous Galerkin implementation of NUMA for GPUs, but the main branch used
+      continuous Galerkin. I have unified the cG and dG versions and even added the capability to do both in the same simulation
+      but different regions of the domain. The dG discretization can be more stable than cG wihout additional stabilization.
+    </p>
+    <p>  
+      Later on, I was able to incorporate the 2D version that solves the shallow water equations into the 3D version of NUMA. This
+      was achived by noticing polynomial order 0 in z-direction is same as the 2D version. Furthermore, taking advantage of the
+      similarity of the shallow water equations with compressible Euler equations, I reduced the task to just initializing of the
+      test problems. The only major difference between solving compressible Euler and Shallow water equations turned out to be in
+      the way pressure is computed. This allowed as to immediately benefit from the HPC work (multi-CPU and multi-GPU) in NUMA3D
+      for shallow water equations as well.
+      
+      </p>
+      
+      </ul>
+		  
+      <h2 id="life">Life</h2>
+      
+      <h3 id="photo">Photography</h3>
+      <p> I try to take pictures of the beautiful city <em>Monterey</em> whenever I get the chance. </p>
+      
+      <h3 id="chess">Computer Chess</h3>
+      <p> I spent so much time developing <em>computer chess</em> programs. 
+		  Here is the <a href="https://sites.google.com/site/dshawul/home">dark side</a> of me!</p>
 
     </div>
   </div>
