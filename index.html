@@ -418,17 +418,17 @@ This is the parent `<div>` that contains the menu and the content area.
          This hides the nitty-gritty details of HPC programming from the programer. 
       </p>
       
-<!-- HTML generated using hilite.me --><div style="background: #f8f8f8; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #00BB00; font-weight: bold">void</span> <span style="color: #00A000">transport</span>(istream<span style="color: #666666">&amp;</span> input) {
+<!-- HTML generated using hilite.me --><div style="background: #f8f8f8; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;"><pre style="margin: 0; line-height: 125%"><span style="color: #00BB00; font-weight: bold">void</span> <span style="color: #00A000">transport</span>() {
     <span style="color: #AA22FF; font-weight: bold">for</span> (AmrIteration ait; <span style="color: #666666">!</span>ait.end(); ait.next()) {     <span style="color: #008800; font-style: italic">/*AMR iteration object (ait) and loop*/</span>
-        VectorCellField U(<span style="color: #BB4444">&quot;U&quot;</span>, READWRITE);               <span style="color: #008800; font-style: italic">/*Velocity field defined over the grid*/</span>
+         VectorCellField U(<span style="color: #BB4444">&quot;U&quot;</span>, READWRITE);               <span style="color: #008800; font-style: italic">/*Velocity field defined over the grid*/</span>
          ScalarCellField T(<span style="color: #BB4444">&quot;T&quot;</span>, READWRITE);               <span style="color: #008800; font-style: italic">/*Scalar field*/</span>
          ScalarFacetField F <span style="color: #666666">=</span> flx(U);                     <span style="color: #008800; font-style: italic">/*Compute flux field*/</span>
          ScalarCellField mu <span style="color: #666666">=</span> <span style="color: #666666">1</span>;                          <span style="color: #008800; font-style: italic">/*Diffusion parameter*/</span>
-         <span style="color: #AA22FF; font-weight: bold">for</span> (it(ait.get_step()); <span style="color: #666666">!</span>it.end(); it.next()) { <span style="color: #008800; font-style: italic">/*Time loop with support for deferred correction */</span>
+         <span style="color: #AA22FF; font-weight: bold">for</span> (Iteration it(ait.get_step()); <span style="color: #666666">!</span>it.end(); it.next()) { <span style="color: #008800; font-style: italic">/*Time loop with support for deferred correction */</span>
              ScalarCellMatrix M;                          <span style="color: #008800; font-style: italic">/*Matrix for the PDE discretization*/</span>
              M <span style="color: #666666">=</span> div(T,U,F,<span style="color: #666666">&amp;</span>mu) <span style="color: #666666">-</span> lap(T,mu);              <span style="color: #008800; font-style: italic">/*Divergence &amp; Laplacian terms*/</span>
              addTemporal<span style="color: #666666">&lt;1&gt;</span>(M);                           <span style="color: #008800; font-style: italic">/*Add temporal derivative*/</span>
-             Solve(M);                                    <span style="color: #008800; font-style: italic">/*Solve*/</span>
+             Solve(M);                                    <span style="color: #008800; font-style: italic">/*Solve the matrix */</span>
          }
     }
 }
@@ -447,6 +447,11 @@ This is the parent `<div>` that contains the menu and the content area.
       <img class="pure-img-responsive" src="images/cavity2_grid.gif" alt="cavity" style="width:180px;height:190px;">
       <img class="pure-img-responsive" src="images/cavity2.gif" alt="cavity" style="width:180px;height:190px;">
 
+      <p>     
+         Solver has several RANS turbulence models such as the standard k-epsilon, k-omega, RNG k-epsiolon etc. It has also
+         the Smagornisky LES model with which the following animation is produced.
+      </p>
+      <img class="pure-img-responsive" src="images/pitz.gif" alt="pitz" width="100%" height="100%">
       
       <p>     
          To learn and use the Solver library quickly, it is best to start from Doxygen documentation provided in the github 
@@ -454,6 +459,47 @@ This is the parent `<div>` that contains the menu and the content area.
       </p>
       <p></p>
       
+	  <li>
+		  <a href="http://frankgiraldo.wixsite.com/mysite/numa"><i class="fa-li fa fa-file-text-o"></i></a>
+		  NUMA - The Nonhydrostatic Unified Model of the Atmosphere.
+	  </li>
+      <p>
+      I have contributed to the non-hydrostatic unified model of the atmosphere, smartly named as NUMA by my supervisor 
+      <a href="http://frankgiraldo.wixsite.com/mysite">Francis X. Giraldo</a>. NUMA is a compressible Navier-Stokes solver specifically designed to solve the governing equations
+      of nonhydrostatic atmospheric modeling. NUMA solves the equations in a cube domain as well as on a sphere. NUMA is the
+      dynamical core of the  U.S. Navy's NEPTUNE system.  NEPTUNE stands for the Navy's Environmental Prediction sysTem Using the
+      NUMA corE. NUMA / NEPTUNE participated in a recent NOAA (National Oceanographic and Atmospheric Administration) study
+      conducted to determine which model will be used operationally by the U.S. National Weather Service
+      </p>
+      <p>
+      My contributions to NUMA is mainly in the high-performance computing (HPC) department. My main achievement is that I ported
+      NUMA to run on a host of accelerators such as GPUs, Intel's KNL, and even standard CPU cores using a new language called
+      <a href="https://github.com/libocca/occa">OCCA</a>. NUMA uses the same kernels to run on both GPUs and CPUs because 
+      the kernels are compiled at runtime for the specific device. This approach also allows for device-specific optimizations
+      that would not be possible otherwise. I have tested the GPU implementation using upto 16384 GPUs on the second fastest
+      supercomputer in the world, Titan, and found more than 90% scalability. Moreover, a single K20X GPU card was able to deliver
+      approximately a 200X speedup over a single core CPU.
+  </p>
+  <img class="pure-img-responsive" src="images/weakscaling.png" alt="weakscaling" width="45%" height="45%">
+  <img class="pure-img-responsive" src="images/strongscaling.png" alt="strongscaling" width="52%" height="52%">
+  <p>
+      My other contribution was in unifiying several branches of NUMA into one code without degrading of performance. This was
+      originally necessary becasue we needed the discontinuous Galerkin implementation of NUMA for GPUs, but the main branch used
+      the continuous Galerkin method. I have unified the cG and dG versions and even added the capability to do both in the same
+      simulation but different regions of the domain. The dG discretization can be more stable than cG wihout additional
+      stabilization. Here are some of my favourite NWP test cases: on the left is the rising thermal bubble problem, and on the
+      right an acoustic wave traveling around the globe.
+    </p>
+    <img class="pure-img-responsive" src="images/rtb.gif" alt="rtb" width="40%" height="40%">
+    <img class="pure-img-responsive" src="images/acoustic.gif" alt="acoustic" width="40%" height="40%">
+    <p>  
+      Later on, I was able to incorporate the 2D version that solves the shallow water equations into the 3D version of NUMA. This
+      was achived by noticing polynomial order of 0 in z-direction is same as the 2D version. Furthermore, taking advantage of the
+      similarity of the shallow water equations with compressible Euler equations, I reduced the task to just initializing of the
+      test problems. The only major difference between solving compressible Euler and Shallow water equations turned out to be in
+      the way pressure is computed. This allowed as to immediately benefit from the HPC work (multi-CPU and multi-GPU) in NUMA3D
+      for shallow water equations as well.
+      </p>
 	  <li>
 		  <a href="http://github.com/dshawul/StAnD"><i class="fa-li fa fa-file-text-o"></i></a>
 		  StAnD - A linear static/dynamic structural analysis and design program.
@@ -471,44 +517,6 @@ This is the parent `<div>` that contains the menu and the content area.
       
       To learn and use the StAnD library quickly, it is best to start from Doxygen documentation provided in the github 
       repository. <a href="http://github.com/dshawul/stand">[github]</a>
-      </p>
-      
-	  <li>
-		  <a href="http://frankgiraldo.wixsite.com/mysite/numa"><i class="fa-li fa fa-file-text-o"></i></a>
-		  NUMA - The Nonhydrostatic Unified Model of the Atmosphere.
-	  </li>
-      <p>
-      I have contributed to the non-hydrostatic unified model of the atmosphere, smartly named as NUMA by my supervisor 
-      Francis X. Giraldo. NUMA is a compressible Navier-Stokes solver specifically designed to solve the equations for
-      applications in nonhydrostatic atmospheric modeling. NUMA solves the equations in a cube as well as on a sphere. NUMA is the
-      dynamical core of the  U.S. Navy's NEPTUNE system.  NEPTUNE stands for the Navy's Environmental Prediction sysTem Using the
-      NUMA corE. NUMA/NEPTUNE participated in a recent NOAA (National Oceanographic and Atmospheric Administration) study
-      conducted to determine which model will be used operationally by the U.S. National Weather Service
-      </p>
-      <p>
-      My contributions to NUMA is mainly in the high-performance computing (HPC) department. My main achievement is that I ported
-      NUMA to run on a host of accelerators such as GPUs, Intel's KNL, and even standard CPU cores using a new language called
-      OCCA <a href="https://github.com/libocca/occa">[github]</a>. NUMA uses the same kernels to run on both GPUs and CPUs because 
-      the kernels are compiled at runtime for the specific device. This approach also allows for device-specific optimizations
-      that would not be possible otherwise. I have tested the GPU implementation using upto 16384 GPUs on the second fastest
-      supercomputer in the world, Titan, and found more than 90% scalability. Moreover, a single K20X GPU card was able to deliver
-      approximately a 200X speedup over a single core CPU.
-  </p>
-  <p>
-      My other contribution was in unifiying several branches of NUMA into one code without degrading of performance. This was
-      originally necessary becasue we needed the discontinuous Galerkin implementation of NUMA for GPUs, but the main branch used
-      the continuous Galerkin method. I have unified the cG and dG versions and even added the capability to do both in the same
-      simulation but different regions of the domain. The dG discretization can be more stable than cG wihout additional
-      stabilization.
-    </p>
-    <p>  
-      Later on, I was able to incorporate the 2D version that solves the shallow water equations into the 3D version of NUMA. This
-      was achived by noticing polynomial order of 0 in z-direction is same as the 2D version. Furthermore, taking advantage of the
-      similarity of the shallow water equations with compressible Euler equations, I reduced the task to just initializing of the
-      test problems. The only major difference between solving compressible Euler and Shallow water equations turned out to be in
-      the way pressure is computed. This allowed as to immediately benefit from the HPC work (multi-CPU and multi-GPU) in NUMA3D
-      for shallow water equations as well.
-      
       </p>
       
       </ul>
